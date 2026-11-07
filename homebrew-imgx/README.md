@@ -50,31 +50,32 @@ The source repository publishes one archive per platform as a GitHub release.
 This tap downloads those archives directly, so `brew install imgx` needs no
 toolchain.
 
-> **The formula in this repository is not usable yet.** It carries placeholder
-> checksums, because no release has been published yet. `brew install imgx`
-> fails loudly with a 404 until the first release exists and the formula is
-> updated. This is deliberate: the alternative is a formula that looks ready but
-> has never verified anything.
+You do not edit this repository by hand. Its contents live in the source
+repository under `homebrew-imgx/` and are pushed here as a subtree, so the
+formula and the code it installs are always in the same commit.
 
-To cut a release:
+To cut a release, in the source repository:
 
-1. In the source repository, tag and push:
+```bash
+git tag v1.1.0
+git push --tags
+```
 
-   ```bash
-   git tag v1.1.0
-   git push --tags
-   ```
+The release workflow builds the archives and publishes `checksums.txt`
+alongside them. The publish-tap workflow then reads those checksums, updates
+the formula and pushes it here. Nothing else is needed.
 
-   The release workflow builds the archives and publishes `checksums.txt`
-   alongside them.
+Publishing the tap needs a token:
 
-2. In this repository, point the formula at the new release:
+1. Create a fine-grained token with write access to
+   `chkrishnatej/homebrew-imgx`, scoped to that repository only.
+2. Add it to the source repository as a secret named `HOMEBREW_TAP_TOKEN`.
 
-   ```bash
-   ./scripts/update-formula.sh 1.1.0
-   git commit -am 'imgx 1.1.0'
-   git push
-   ```
+To update the formula by hand instead:
+
+```bash
+./scripts/update-formula.sh 1.1.0
+```
 
 `update-formula.sh` reads `checksums.txt` from the release and fills in the
 version, urls and sha256 values, so the checksums always match the archives

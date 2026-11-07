@@ -1,0 +1,70 @@
+name: publish-tap
+
+# Publishes the Homebrew tap after a release.
+#
+# The tap lives in this repository under homebrew-imgx/ and is pushed to
+# chkrishnatej/homebrew-imgx as a subtree. That keeps the formula in the same
+# commit as the code it installs, so the two cannot drift apart.
+#
+# Homebrew requires the tap to live in a repository named `homebrew-<tap>`,
+# which is why there are two repositories at all. Only this one is edited by
+# hand.
+
+on:
+  workflow_run:
+    workflows: ["release"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: publish tap
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Point the formula at the released version
+        run: |
+          set -euo pipefail
+          version="$(jq -r .version package.json)"
+          ./homebrew-imgx/scripts/update-formula.sh "${version}"
+
+      - name: Commit the updated formula
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- homebrew-imgx/; then
+            echo "The formula is already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add homebrew-imgx/
+          git commit -m "Update the tap formula for $(jq -r .version package.json)"
+          git push origin main
+
+      - name: Split the tap out into its own branch
+        run: git subtree split --prefix=homebrew-imgx -b tap-split
+
+      - name: Push the tap
+        env:
+          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ -z "${TAP_TOKEN}" ]]; then
+            echo "HOMEBREW_TAP_TOKEN is not set; the tap was not pushed." >&2
+            echo "Create a fine-grained token with write access to" >&2
+            echo "chkrishnatej/homebrew-imgx and add it as a repository secret." >&2
+            exit 1
+          fi
+          git remote add tap "https://x-access-token:${TAP_TOKEN}@github.com/chkrishnatej/homebrew-imgx.git"
+          git push --force tap tap-split:main

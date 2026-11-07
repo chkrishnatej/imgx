@@ -178,3 +178,26 @@ bun run typecheck
 ```
 
 `@napi-rs/image` is used instead of `sharp` on purpose: `sharp`'s native thread pool deadlocks under Bun 1.4.4, and `@napi-rs/image` is a plain N-API module that does not.
+
+## Releasing
+
+The tag is the only thing you push:
+
+```bash
+git tag v1.1.0
+git push --tags
+```
+
+The release workflow builds one archive per platform and publishes them with a `checksums.txt`. The publish-tap workflow then points the Homebrew formula at those archives and pushes it.
+
+Two repositories are involved, because Homebrew requires a tap to live in a repository named `homebrew-<tap>` — `brew tap chkrishnatej/imgx` clones `chkrishnatej/homebrew-imgx`. Only this repository is edited by hand: the tap's contents live in `homebrew-imgx/` here and are published as a subtree, so the formula and the code it installs are always in the same commit.
+
+The publish-tap workflow pushes to the tap with a fine-grained token stored as the `HOMEBREW_TAP_TOKEN` secret on this repository.
+
+## Website
+
+The site in [`site/`](site/README.md) is plain HTML and CSS with no build step. The manual page is generated from `man/imgx.1`, so the website cannot drift from the manual that ships with the package:
+
+```bash
+./site/build-man.sh
+```
