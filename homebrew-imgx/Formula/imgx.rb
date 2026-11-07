@@ -13,25 +13,25 @@ class Imgx < Formula
   # filled in by scripts/update-formula.sh once a release is published.
   on_macos do
     on_arm do
-      url "https://github.com/chkrishnatej/imgx/releases/download/v0.0.0/imgx-0.0.0-darwin-arm64.tar.gz"
-      sha256 "REPLACE_DARWIN_ARM64_SHA"
+      url "https://github.com/chkrishnatej/imgx/releases/download/v1.0.0/imgx-1.0.0-darwin-arm64.tar.gz"
+      sha256 "ce9be4a34465d0691d31a38005e7fdb22e03677b5d914a80c7cf39251a5dc30f"
     end
 
     on_intel do
-      url "https://github.com/chkrishnatej/imgx/releases/download/v0.0.0/imgx-0.0.0-darwin-x64.tar.gz"
-      sha256 "REPLACE_DARWIN_X64_SHA"
+      url "https://github.com/chkrishnatej/imgx/releases/download/v1.0.0/imgx-1.0.0-darwin-x64.tar.gz"
+      sha256 "ce45bd54f5d956135cfe558d183ae09bc39be423c2252c0a665be4d589a677c5"
     end
   end
 
   on_linux do
     on_arm do
-      url "https://github.com/chkrishnatej/imgx/releases/download/v0.0.0/imgx-0.0.0-linux-arm64.tar.gz"
-      sha256 "REPLACE_LINUX_ARM64_SHA"
+      url "https://github.com/chkrishnatej/imgx/releases/download/v1.0.0/imgx-1.0.0-linux-arm64.tar.gz"
+      sha256 "5d279afc9f7cb4de4fc59a4834a42936330e0b3738d03926478dcb8fcd933d75"
     end
 
     on_intel do
-      url "https://github.com/chkrishnatej/imgx/releases/download/v0.0.0/imgx-0.0.0-linux-x64.tar.gz"
-      sha256 "REPLACE_LINUX_X64_SHA"
+      url "https://github.com/chkrishnatej/imgx/releases/download/v1.0.0/imgx-1.0.0-linux-x64.tar.gz"
+      sha256 "98574fbd84734de74d7c46ee07976de494bcea51677ffd18565d2dea3e0a3a10"
     end
   end
 
