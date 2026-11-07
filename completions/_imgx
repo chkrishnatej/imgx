@@ -1,0 +1,34 @@
+#compdef imgx
+
+# zsh completion for imgx.
+#
+# Install by linking this file into any directory on $fpath, then opening a new shell:
+#   ln -s ~/Developer/imgx/completions/_imgx ~/.oh-my-zsh/custom/completions/_imgx
+
+_imgx_formats=(png jpeg webp avif tiff)
+_imgx_colors=(white black grey gray red green blue)
+
+# Only offer files imgx can actually read, so tabbing never suggests a .txt.
+# extendedglob is set locally because (#i) is not available in default zsh.
+_imgx_inputs() {
+  setopt localoptions extendedglob
+  _files -g '*.(#i)(svg|png|jpg|jpeg|jpe|webp|avif|tif|tiff|gif|bmp|ico|tga|heic|heif|psd|pdf)'
+}
+
+_imgx() {
+  _arguments -s -S \
+    '(-h --help)'{-h,--help}'[show help]' \
+    '--version[show version]' \
+    '(-o --out)'{-o,--out}'[output file or directory]:output:_files' \
+    '(-f --format)'{-f,--format}'[output format]:format:(${_imgx_formats})' \
+    '(-w --width)'{-w,--width}'[target width in pixels]:width:' \
+    '--height[target height in pixels]:height:' \
+    '(-s --scale)'{-s,--scale}'[SVG scale factor]:scale:' \
+    '(-q --quality)'{-q,--quality}'[quality for jpeg, webp and avif]:quality:' \
+    '--background[solid color behind JPEG transparency]:color:(${_imgx_colors})' \
+    '--overwrite[replace files that already exist]' \
+    '--dry-run[print what would be written]' \
+    '*:input file:_imgx_inputs'
+}
+
+_imgx "$@"

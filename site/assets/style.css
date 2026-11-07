@@ -1,0 +1,633 @@
+:root {
+  --bg: #0b0e14;
+  --bg-raised: #11151f;
+  --bg-inset: #070910;
+  --border: #232a38;
+  --border-bright: #33405a;
+  --text: #d5dae4;
+  --text-dim: #8b95a9;
+  --text-faint: #5c667a;
+  --accent: #4ade80;
+  --accent-dim: #2f855a;
+  --link: #7dd3fc;
+  --warn: #fbbf24;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, -apple-system, "Segoe UI", Inter, system-ui, sans-serif;
+  --max: 60rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+code,
+pre {
+  font-family: var(--mono);
+}
+
+code {
+  font-size: 0.875em;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+
+pre {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+.wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* ---------- header ---------- */
+
+header.site {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(11, 14, 20, 0.88);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+header.site .wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 3.5rem;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.brand:hover {
+  text-decoration: none;
+}
+
+.brand .dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+nav.site {
+  margin-left: auto;
+  display: flex;
+  gap: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+nav.site a {
+  color: var(--text-dim);
+}
+
+nav.site a:hover,
+nav.site a[aria-current="page"] {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+/* ---------- hero ---------- */
+
+.hero {
+  padding: 4.5rem 0 3rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero h1 {
+  font-family: var(--mono);
+  font-size: clamp(2.2rem, 7vw, 3.4rem);
+  line-height: 1.05;
+  margin: 0 0 1rem;
+  letter-spacing: -0.02em;
+}
+
+.hero h1 .prompt {
+  color: var(--accent);
+}
+
+.hero p.lede {
+  font-size: 1.15rem;
+  color: var(--text-dim);
+  max-width: 44rem;
+  margin: 0 0 2rem;
+}
+
+/* ---------- sections ---------- */
+
+section {
+  padding: 3rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+section:last-of-type {
+  border-bottom: 0;
+}
+
+h2 {
+  font-family: var(--mono);
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  margin: 0 0 1.25rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+h2::before {
+  content: "$";
+  color: var(--accent-dim);
+  font-weight: 400;
+}
+
+h3 {
+  font-family: var(--mono);
+  font-size: 1rem;
+  margin: 2rem 0 0.75rem;
+  color: var(--text);
+}
+
+p {
+  margin: 0 0 1rem;
+}
+
+ul,
+ol {
+  padding-left: 1.3rem;
+}
+
+li {
+  margin-bottom: 0.35rem;
+}
+
+/* ---------- install blocks ---------- */
+
+.install {
+  display: grid;
+  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+}
+
+.card {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.card h3 {
+  margin: 0 0 0.15rem;
+}
+
+.card p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin: 0 0 0.85rem;
+}
+
+.card pre {
+  margin: 0;
+  font-size: 0.8rem;
+}
+
+.card .tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  margin-bottom: 0.6rem;
+}
+
+/* ---------- tables ---------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0 0 1rem;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.55rem 0.7rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+th {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+td code {
+  white-space: nowrap;
+}
+
+tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ---------- format matrix ---------- */
+
+table.matrix td:nth-child(2) {
+  white-space: nowrap;
+}
+
+table.matrix th:nth-child(3),
+table.matrix th:nth-child(4) {
+  text-align: center;
+}
+
+table.matrix td.yes,
+table.matrix td.no,
+table.matrix td.macos {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+table.matrix td.yes {
+  color: var(--accent);
+}
+
+table.matrix td.no {
+  color: var(--text-faint);
+}
+
+table.matrix td.macos {
+  color: var(--warn);
+}
+
+/* ---------- terminal demo ---------- */
+
+.terminal {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-inset);
+}
+
+.terminal .bar {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--border);
+}
+
+.terminal .bar span {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--border-bright);
+}
+
+.terminal .bar span:nth-child(1) {
+  background: #ff5f57;
+}
+
+.terminal .bar span:nth-child(2) {
+  background: #febc2e;
+}
+
+.terminal .bar span:nth-child(3) {
+  background: #28c840;
+}
+
+.terminal .bar .title {
+  margin-left: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+
+.terminal pre {
+  border: 0;
+  border-radius: 0;
+  margin: 0;
+  padding: 1rem 1.1rem;
+  font-size: 0.82rem;
+}
+
+.terminal .c-prompt {
+  color: var(--accent);
+}
+
+.terminal .c-out {
+  color: var(--text);
+}
+
+.terminal .c-dim {
+  color: var(--text-faint);
+}
+
+/* ---------- feature grid ---------- */
+
+.features {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.feature {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-left: 2px solid var(--accent-dim);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+}
+
+.feature h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.92rem;
+}
+
+.feature p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--text-dim);
+}
+
+/* ---------- notes ---------- */
+
+.note {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--warn);
+  background: var(--bg-raised);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.note strong {
+  color: var(--text);
+}
+
+.note p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- manual page ---------- */
+
+.manual-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 2.5rem 0 0;
+}
+
+.manual-head h1 {
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  margin: 0;
+}
+
+.manual-head .meta {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+.manual {
+  padding-bottom: 4rem;
+}
+
+.manual h1 {
+  font-family: var(--mono);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+  margin: 2.2rem 0 1rem;
+}
+
+.manual h1 a {
+  color: inherit;
+}
+
+.manual p {
+  color: var(--text-dim);
+}
+
+.manual p b,
+.manual dd b {
+  color: var(--text);
+}
+
+.manual dl {
+  margin: 0;
+}
+
+.manual dt {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-top: 1.1rem;
+}
+
+.manual dt b {
+  color: var(--accent);
+}
+
+.manual dt a {
+  color: inherit;
+}
+
+.manual dd {
+  margin: 0.25rem 0 0 0;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+.manual pre {
+  font-size: 0.82rem;
+}
+
+.manual i {
+  color: var(--text);
+}
+
+.manual table.Nm {
+  display: inline;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  border-collapse: collapse;
+}
+
+.manual table.Nm td {
+  border: 0;
+  padding: 0 0.35rem 0 0;
+}
+
+/* The formats matrix, rendered from the .TS block in man/imgx.1 */
+.manual table.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  margin: 0 0 1rem;
+}
+
+.manual table.tbl td {
+  border: 1px solid var(--border);
+  padding: 0.3rem 0.55rem;
+  color: var(--text-dim);
+}
+
+.manual table.tbl tr:first-child td {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-bottom-color: var(--border-bright);
+}
+
+.manual table.tbl td:first-child {
+  color: var(--text);
+}
+
+.manual table.tbl td.yes {
+  color: var(--accent);
+}
+
+.manual table.tbl td.no {
+  color: var(--text-faint);
+}
+
+.manual table.tbl td.macos {
+  color: var(--warn);
+}
+
+.manual-foot {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ---------- help page ---------- */
+
+.help-output {
+  position: relative;
+}
+
+.help-output .badge {
+  position: absolute;
+  top: -0.7rem;
+  right: 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--bg);
+  border: 1px solid var(--accent-dim);
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+}
+
+/* ---------- footer ---------- */
+
+footer.site {
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 0 3rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-faint);
+}
+
+footer.site .wrap {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+@media (max-width: 40rem) {
+  header.site .wrap {
+    gap: 0.75rem;
+  }
+
+  nav.site {
+    gap: 0.8rem;
+    font-size: 0.78rem;
+  }
+
+  .hero {
+    padding: 3rem 0 2rem;
+  }
+}

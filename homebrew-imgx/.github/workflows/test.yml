@@ -1,0 +1,53 @@
+name: test
+
+# Runs the formula's own test block on every push and pull request, and
+# verifies that the formula still passes `brew audit`.
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: test on macOS ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-14
+          - macos-13
+          - ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Install the formula
+        run: |
+          brew install --build-from-source .
+
+      - name: Run the formula test
+        run: brew test --verbose .
+
+      - name: Audit the formula
+        run: brew audit --strict --online .
+
+  head:
+    name: test --HEAD on macOS
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Install HEAD
+        run: brew install --HEAD --build-from-source .
+
+      - name: Run the formula test
+        run: brew test --verbose .

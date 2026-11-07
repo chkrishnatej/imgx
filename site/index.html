@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>imgx — convert images from the terminal</title>
+<meta name="description" content="imgx converts SVG, PNG, JPEG, WebP, AVIF, TIFF, HEIC and more into png, jpeg, webp, avif or tiff, straight from the terminal. Install with Homebrew.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230b0e14'/><text x='16' y='23' font-family='monospace' font-size='19' font-weight='bold' text-anchor='middle' fill='%234ade80'>ix</text></svg>">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="dot"></span>imgx</a>
+    <nav class="site">
+      <a href="index.html" aria-current="page">Home</a>
+      <a href="help.html">CLI reference</a>
+      <a href="manual.html">Manual</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<div class="hero">
+  <div class="wrap">
+    <h1><span class="prompt">$</span> imgx</h1>
+    <p class="lede">
+      Convert images from the terminal. Five output formats, the inputs you
+      actually have, no ImageMagick.
+    </p>
+
+    <div class="terminal">
+      <div class="bar"><span></span><span></span><span></span><span class="title">zsh</span></div>
+<pre><span class="c-prompt">$</span> <span class="c-out">imgx diagram.svg -w 2400</span>
+<span class="c-out">ok    diagram.svg -&gt; diagram.png  2400x1200  84.2 KB</span>
+
+<span class="c-prompt">$</span> <span class="c-out">imgx screenshots/ -f webp -q 90 -o build/webp</span>
+<span class="c-out">ok    screenshots/a.png -&gt; build/webp/a.webp  1440x900  62.1 KB</span>
+<span class="c-out">ok    screenshots/v2/b.png -&gt; build/webp/v2/b.webp  1440x900  58.7 KB</span>
+<span class="c-dim">2 converted</span></pre>
+    </div>
+  </div>
+</div>
+
+<section>
+  <div class="wrap">
+    <h2>Install</h2>
+    <div class="install">
+      <div class="card">
+        <span class="tag">Recommended</span>
+        <h3>Homebrew</h3>
+        <p>macOS and Linux. Ships the binary, the man page and zsh completion.</p>
+<pre><code>brew tap chkrishnatej/imgx
+brew install imgx</code></pre>
+      </div>
+      <div class="card">
+        <span class="tag">From source</span>
+        <h3>Bun</h3>
+        <p>For development. Needs <a href="https://bun.sh">Bun</a> 1.4.4 or newer.</p>
+<pre><code>git clone https://github.com/chkrishnatej/imgx
+cd imgx
+bun install
+bun link</code></pre>
+      </div>
+      <div class="card">
+        <span class="tag">No install</span>
+        <h3>One-off run</h3>
+        <p>Run straight from a clone, without touching your PATH.</p>
+<pre><code>bun run src/cli.ts \
+  diagram.svg -w 2400</code></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Usage</h2>
+    <pre><code>imgx &lt;input...&gt; [options]
+
+  Inputs are files, directories (walked recursively) or globs.
+  Without --out, files are written next to their source as png.
+
+  -o, --out &lt;path&gt;       Output file, or directory (created if missing,
+                         with the input folder structure mirrored inside)
+  -f, --format &lt;fmt&gt;     png | jpeg | webp | avif | tiff      [default: png]
+  -w, --width &lt;px&gt;       Target width. SVGs render at exactly this size,
+                         raster images are only ever shrunk
+      --height &lt;px&gt;      Target height, ignored when --width is set
+  -s, --scale &lt;n&gt;        SVG only: render at n times its intrinsic size
+  -q, --quality &lt;1-100&gt;  Quality for jpeg, webp and avif       [default: 85]
+      --background &lt;css&gt; Color behind JPEG transparency      [default: white]
+                         #rrggbb, #rgb, rgb(r,g,b), or a name:
+                         white black grey gray red green blue
+      --overwrite        Replace existing files instead of skipping them
+      --dry-run          Print what would be written, change nothing
+  -h, --help             Show this help
+      --version          Show the version</code></pre>
+    <p>
+      The full flag reference lives in the
+      <a href="help.html">CLI reference</a>, and the contract lives in the
+      <a href="manual.html">man page</a>.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Examples</h2>
+    <pre><code># a 1200px-wide PNG for a blog post
+imgx hero.svg -w 1200
+
+# the format nothing on macOS writes: webp
+imgx screenshot.png -f webp -q 90 -o images/
+
+# a whole folder, mirrored into a build directory that does not exist yet
+imgx screenshots/ -f webp -q 90 -o build/webp
+
+# one file out of many, to an exact name
+imgx logo.svg -o static/logo-2x.png
+
+# retina export of a diagram
+imgx architecture.svg -s 2 -o static/
+
+# see what would happen first
+imgx "static/**/*.png" -f avif --dry-run</code></pre>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Why</h2>
+    <div class="features">
+      <div class="feature">
+        <h3>Vectors stay sharp</h3>
+        <p>SVG is rasterized at the exact target size with resvg, so
+           <code>-w</code> and <code>-s</code> never resample.</p>
+      </div>
+      <div class="feature">
+        <h3>Rasters are never enlarged</h3>
+        <p>A width at or above the source width leaves the file alone.
+           Upscaling only adds bytes.</p>
+      </div>
+      <div class="feature">
+        <h3>Reads what you have</h3>
+        <p>SVG, PNG, JPEG, WebP, AVIF, TIFF, GIF, BMP, ICO, TGA, PNM, plus
+           HEIC, PSD, PDF and camera raw through macOS <code>sips</code>.</p>
+      </div>
+      <div class="feature">
+        <h3>Safe to script</h3>
+        <p>No prompts, no pager, no TTY. One line per file on stdout,
+           failures on stderr, exit 1 when anything broke.</p>
+      </div>
+      <div class="feature">
+        <h3>Idempotent</h3>
+        <p>Existing outputs are skipped, so a retry after a partial failure
+           only redoes the work that did not finish.</p>
+      </div>
+      <div class="feature">
+        <h3>Dry runs</h3>
+        <p><code>--dry-run</code> resolves inputs, destinations and formats
+           without touching the filesystem.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Formats</h2>
+    <p>
+      One row per format. <code>imgx</code> reads far more than it writes:
+      everything in the <strong>Read</strong> column is an input, and only the
+      formats marked in <strong>Write</strong> can be an output.
+    </p>
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th>Format</th>
+          <th>Extension</th>
+          <th>Read</th>
+          <th>Write</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>svg</code></td>
+          <td><code>.svg</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Rasterized with resvg, so <code>-w</code> and <code>-s</code> produce genuinely sharp vectors at any size.</td>
+        </tr>
+        <tr>
+          <td><code>png</code></td>
+          <td><code>.png</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossless, keeps transparency. The default output.</td>
+        </tr>
+        <tr>
+          <td><code>jpeg</code></td>
+          <td><code>.jpg</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossy. Transparency is flattened onto <code>--background</code>.</td>
+        </tr>
+        <tr>
+          <td><code>webp</code></td>
+          <td><code>.webp</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossy, keeps transparency, much smaller than PNG.</td>
+        </tr>
+        <tr>
+          <td><code>avif</code></td>
+          <td><code>.avif</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossy, keeps transparency, smallest of the lot, slowest to encode.</td>
+        </tr>
+        <tr>
+          <td><code>tiff</code></td>
+          <td><code>.tiff</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossless, uncompressed-ish, for print and archival.</td>
+        </tr>
+        <tr>
+          <td><code>gif</code></td>
+          <td><code>.gif</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>First frame only.</td>
+        </tr>
+        <tr>
+          <td><code>bmp</code></td>
+          <td><code>.bmp</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Decoded natively.</td>
+        </tr>
+        <tr>
+          <td><code>ico</code></td>
+          <td><code>.ico</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Decoded natively.</td>
+        </tr>
+        <tr>
+          <td><code>tga</code></td>
+          <td><code>.tga</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Decoded natively.</td>
+        </tr>
+        <tr>
+          <td><code>pnm</code></td>
+          <td><code>.pnm</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Decoded natively.</td>
+        </tr>
+        <tr>
+          <td><code>heic</code></td>
+          <td><code>.heic</code></td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+        <tr>
+          <td><code>heif</code></td>
+          <td><code>.heif</code></td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+        <tr>
+          <td><code>psd</code></td>
+          <td><code>.psd</code></td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+        <tr>
+          <td><code>pdf</code></td>
+          <td><code>.pdf</code></td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+        <tr>
+          <td>camera raw</td>
+          <td><code>.dng</code> <code>.cr2</code> <code>.nef</code> &hellip;</td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      There is no SVG output. Vectorizing a raster image is a different
+      problem, and the result is never the original vector.
+    </p>
+  </div>
+</section>
+
+<section id="homebrew">
+  <div class="wrap">
+    <h2>Homebrew tap</h2>
+    <p>
+      <code>imgx</code> is published as a Homebrew tap at
+      <a href="https://github.com/chkrishnatej/homebrew-imgx">github.com/chkrishnatej/homebrew-imgx</a>.
+      Tapping it gives you the binary, the <code>imgx(1)</code> manual page and
+      the zsh completion function.
+    </p>
+
+    <h3>Install</h3>
+<pre><code>brew tap chkrishnatej/imgx
+brew install imgx
+imgx --version</code></pre>
+
+    <h3>What you get</h3>
+    <table>
+      <thead>
+        <tr><th>Path</th><th>What</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>$(brew --prefix)/bin/imgx</code></td><td>The converter.</td></tr>
+        <tr><td><code>$(brew --prefix)/share/man/man1/imgx.1</code></td><td>The manual page, so <code>man imgx</code> works.</td></tr>
+        <tr><td><code>$(brew --prefix)/share/zsh/site-functions/_imgx</code></td><td>zsh completion, on <code>$fpath</code> already.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Update and remove</h3>
+<pre><code>brew update
+brew upgrade imgx
+
+brew uninstall imgx
+brew untap chkrishnatej/imgx</code></pre>
+
+    <h3>Work on the formula</h3>
+    <p>
+      The tap is an ordinary git repository. Clone it, point Homebrew at your
+      copy, and rebuild:
+    </p>
+<pre><code>git clone https://github.com/chkrishnatej/homebrew-imgx
+brew tap chkrishnatej/imgx \
+  "$PWD/homebrew-imgx" --force
+
+brew install imgx --build-from-source</code></pre>
+
+    <div class="note">
+      <p><strong>The formula installs a prebuilt binary.</strong>
+        Each release of <code>chkrishnatej/imgx</code> publishes one archive
+        per platform, and the formula downloads the right one. A normal
+        <code>brew install imgx</code> therefore needs no compiler, no Bun and
+        no network access beyond the download.</p>
+      <p>Linux works the same way. The <code>heic</code>, <code>psd</code>,
+        <code>pdf</code> and camera raw inputs need macOS
+        <code>sips</code>, so they are macOS only.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Read more</h2>
+    <ul>
+      <li><a href="help.html">CLI reference</a> &mdash; every flag, the output contract, zsh completion.</li>
+      <li><a href="manual.html">Manual page</a> &mdash; the full <code>imgx(1)</code>, the same text <code>man imgx</code> prints.</li>
+      <li><a href="https://github.com/chkrishnatej/imgx">Source on GitHub</a> &mdash; <code>bun test</code> runs 30 tests over the conversion matrix.</li>
+    </ul>
+    <div class="note">
+      <p><strong>Worth knowing before you point it at a folder of photographs.</strong>
+        Rasters are never enlarged, animated GIF and WebP use their first frame,
+        ICC profiles and EXIF are dropped, and the EXIF rotation flag is not
+        applied. The <a href="manual.html">manual</a> lists every limitation.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>imgx 1.0.0 &middot; MIT</span>
+    <span>
+      <a href="https://github.com/chkrishnatej/imgx">github</a> &middot;
+      <a href="https://github.com/chkrishnatej/homebrew-imgx">homebrew tap</a> &middot;
+      <a href="manual.html">man page</a>
+    </span>
+  </div>
+</footer>
+</body>
+</html>

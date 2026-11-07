@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>imgx(1) — manual page</title>
+<meta name="description" content="The full imgx(1) manual page: synopsis, options, formats, exit status, automation contract and limitations.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230b0e14'/><text x='16' y='23' font-family='monospace' font-size='19' font-weight='bold' text-anchor='middle' fill='%234ade80'>ix</text></svg>">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="dot"></span>imgx</a>
+    <nav class="site">
+      <a href="index.html">Home</a>
+      <a href="help.html">CLI reference</a>
+      <a href="manual.html" aria-current="page">Manual</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<div class="wrap manual-head">
+  <h1>imgx(1)</h1>
+  <span class="meta">User Commands &middot; imgx 1.0.0 &middot; 2026-11-02</span>
+</div>
+
+<section class="manual">
+  <div class="wrap">
+<section class="Sh">
+<h1 class="Sh" id="NAME"><a class="permalink" href="#NAME">NAME</a></h1>
+<p class="Pp">imgx - convert images between common formats from the command
+  line</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SYNOPSIS"><a class="permalink" href="#SYNOPSIS">SYNOPSIS</a></h1>
+<table class="Nm">
+  <tr>
+    <td><code class="Nm">imgx</code></td>
+    <td><i>input ...</i> [<i>options</i>]</td>
+  </tr>
+</table>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="DESCRIPTION"><a class="permalink" href="#DESCRIPTION">DESCRIPTION</a></h1>
+<p class="Pp"><b>imgx</b> converts image files between formats. It reads SVG,
+    PNG, JPEG, WebP, AVIF, TIFF, GIF, BMP, ICO and a few others, and writes PNG,
+    JPEG, WebP, AVIF or TIFF.</p>
+<p class="Pp">Inputs may be files, directories, or glob patterns. A directory is
+    walked recursively and every file with a recognised image extension is
+    converted.</p>
+<p class="Pp">The output format comes from <b>-f</b>, or is inferred from the
+    extension of <b>-o</b>. It defaults to PNG. Without <b>-o</b>, output is
+    written next to each source file.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="OPTIONS"><a class="permalink" href="#OPTIONS">OPTIONS</a></h1>
+<dl class="Bl-tag">
+  <dt id="o"><a class="permalink" href="#o"><b>-o</b>, <b>--out</b>
+    <b><i>path</i></b></a></dt>
+  <dd>Where to write. A path ending in an image extension names a single output
+      file. Anything else is treated as a directory, created if it does not
+      exist, and the input folder structure is mirrored inside it. <b>-o</b>
+      must be a directory when converting more than one file. If both <b>-f</b>
+      and an <b>-o</b> file extension are given and they disagree, it is an
+      error rather than a silently renamed file.</dd>
+  <dt id="f"><a class="permalink" href="#f"><b>-f</b>, <b>--format</b>
+    <b><i>fmt</i></b></a></dt>
+  <dd>One of <b>png</b>, <b>jpeg</b>, <b>webp</b>, <b>avif</b>, <b>tiff</b>.
+      Default <b>png</b>.</dd>
+  <dt id="w"><a class="permalink" href="#w"><b>-w</b>, <b>--width</b>
+    <b><i>px</i></b></a></dt>
+  <dd>Target width. SVGs are rasterized at exactly this width, so the result is
+      crisp at any size. Raster images are only ever shrunk; a width at or above
+      the source width is ignored.</dd>
+  <dt id="height"><a class="permalink" href="#height"><b>--height
+    <i>px</i></b></a></dt>
+  <dd>Target height, preserving aspect ratio. Ignored when <b>--width</b> is
+      also given.</dd>
+  <dt id="s"><a class="permalink" href="#s"><b>-s</b>, <b>--scale</b>
+    <b><i>n</i></b></a></dt>
+  <dd>SVG only. Render at <i>n</i> times the intrinsic size. <b>-s</b> 2 gives a
+      retina export.</dd>
+  <dt id="q"><a class="permalink" href="#q"><b>-q</b>, <b>--quality</b>
+    <b><i>1-100</i></b></a></dt>
+  <dd>Encoder quality for <b>jpeg</b>, <b>webp</b> and <b>avif</b>. Ignored for
+      <b>png</b> and <b>tiff</b>, which are lossless. Default 85. Quality 100 is
+      the best a lossy codec offers, not a lossless mode.</dd>
+  <dt id="background"><a class="permalink" href="#background"><b>--background
+    <i>css</i></b></a></dt>
+  <dd>The colour used to fill transparent pixels when writing JPEG, which has no
+      alpha channel. Accepts <b>#rrggbb</b>, <b>#rgb</b>, <b>rgb(r,g,b)</b> or
+      one of <b>white</b>, <b>black</b>, <b>gray</b>, <b>grey</b>, <b>red</b>,
+      <b>green</b>, <b>blue</b>. Default <b>white</b>. An unrecognised colour is
+      an error rather than a silent fallback.</dd>
+  <dt id="overwrite"><a class="permalink" href="#overwrite"><b>--overwrite</b></a></dt>
+  <dd>Replace destination files that already exist. Without this flag an
+      existing file is skipped.</dd>
+  <dt id="dry"><a class="permalink" href="#dry"><b>--dry-run</b></a></dt>
+  <dd>Resolve inputs, outputs and formats, print what would be written, and exit
+      without touching the filesystem.</dd>
+  <dt id="h"><a class="permalink" href="#h"><b>-h</b>, <b>--help</b></a></dt>
+  <dd>Print usage to standard output and exit 0.</dd>
+  <dt id="version"><a class="permalink" href="#version"><b>--version</b></a></dt>
+  <dd>Print the version and exit 0.</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="FORMATS"><a class="permalink" href="#FORMATS">FORMATS</a></h1>
+<p class="Pp">One row per format. The <b>Read</b> column lists the formats that
+    can be used as an input. The <b>Write</b> column lists the formats that can
+    be used as an output.</p>
+<table class="tbl" border="1" style="border-style: solid;">
+  <tr>
+    <td><b>Format</b></td>
+    <td><b>Extension</b></td>
+    <td><b>Read</b></td>
+    <td><b>Write</b></td>
+  </tr>
+  <tr>
+    <td><b>svg</b></td>
+    <td><b>.svg</b></td>
+    <td class="yes">yes</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>png</b></td>
+    <td><b>.png</b></td>
+    <td class="yes">yes</td>
+    <td class="yes">yes</td>
+  </tr>
+  <tr>
+    <td><b>jpeg</b></td>
+    <td><b>.jpg</b></td>
+    <td class="yes">yes</td>
+    <td class="yes">yes</td>
+  </tr>
+  <tr>
+    <td><b>webp</b></td>
+    <td><b>.webp</b></td>
+    <td class="yes">yes</td>
+    <td class="yes">yes</td>
+  </tr>
+  <tr>
+    <td><b>avif</b></td>
+    <td><b>.avif</b></td>
+    <td class="yes">yes</td>
+    <td class="yes">yes</td>
+  </tr>
+  <tr>
+    <td><b>tiff</b></td>
+    <td><b>.tiff</b></td>
+    <td class="yes">yes</td>
+    <td class="yes">yes</td>
+  </tr>
+  <tr>
+    <td><b>gif</b></td>
+    <td><b>.gif</b></td>
+    <td class="yes">yes</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>bmp</b></td>
+    <td><b>.bmp</b></td>
+    <td class="yes">yes</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>ico</b></td>
+    <td><b>.ico</b></td>
+    <td class="yes">yes</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>tga</b></td>
+    <td><b>.tga</b></td>
+    <td class="yes">yes</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>pnm</b></td>
+    <td><b>.pnm</b></td>
+    <td class="yes">yes</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>heic</b></td>
+    <td><b>.heic</b></td>
+    <td class="macos">macOS</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>heif</b></td>
+    <td><b>.heif</b></td>
+    <td class="macos">macOS</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>psd</b></td>
+    <td><b>.psd</b></td>
+    <td class="macos">macOS</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>pdf</b></td>
+    <td><b>.pdf</b></td>
+    <td class="macos">macOS</td>
+    <td class="no">no</td>
+  </tr>
+  <tr>
+    <td><b>camera raw</b></td>
+    <td><b>.dng ...</b></td>
+    <td class="macos">macOS</td>
+    <td class="no">no</td>
+  </tr>
+</table>
+<p class="Pp"><b>svg</b> is rasterized with resvg, so <b>-w</b> and <b>-s</b>
+    produce genuinely sharp vectors at any size.</p>
+<p class="Pp">The <b>heic ,</b> <b>heif ,</b> <b>psd ,</b> <b>pdf</b> and camera
+    raw formats are handled through <b>sips</b>(1) on macOS and are unavailable
+    elsewhere.</p>
+<p class="Pp">SVG is not an output format. Vectorising a photograph does not
+    recover the curves it was drawn from.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="EXIT_STATUS"><a class="permalink" href="#EXIT_STATUS">EXIT
+  STATUS</a></h1>
+<dl class="Bl-tag">
+  <dt><b>0</b></dt>
+  <dd>Every file converted, or was skipped because it already existed.</dd>
+  <dt><b>1</b></dt>
+  <dd>At least one file failed, or the arguments were invalid, or no input was
+      given.</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="EXAMPLES"><a class="permalink" href="#EXAMPLES">EXAMPLES</a></h1>
+<p class="Pp">Convert a diagram for a web page, at exactly 2400 pixels wide:</p>
+<p class="Pp"></p>
+<div class="Bd-indent">
+<pre>imgx diagram.svg -w 2400
+</pre>
+</div>
+<p class="Pp">Produce a format macOS cannot write on its own:</p>
+<p class="Pp"></p>
+<div class="Bd-indent">
+<pre>imgx screenshot.png -f webp -q 90 -o images/
+</pre>
+</div>
+<p class="Pp">Convert a folder tree into a build directory that does not exist
+    yet:</p>
+<p class="Pp"></p>
+<div class="Bd-indent">
+<pre>imgx screenshots/ -f webp -q 90 -o build/webp
+</pre>
+</div>
+<p class="Pp">Write one file to an exact name:</p>
+<p class="Pp"></p>
+<div class="Bd-indent">
+<pre>imgx logo.svg -o static/logo-2x.png
+</pre>
+</div>
+<p class="Pp">Check what a conversion would do before doing it:</p>
+<p class="Pp"></p>
+<div class="Bd-indent">
+<pre>imgx &quot;static/**/*.png&quot; -f avif --dry-run
+</pre>
+</div>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="AUTOMATION"><a class="permalink" href="#AUTOMATION">AUTOMATION</a></h1>
+<p class="Pp"><b>imgx</b> never prompts, never opens a pager, and never requires
+    a terminal, so it can be driven from a script or an agent without a
+    pseudo-terminal.</p>
+<p class="Pp">Progress goes to standard output, one line per file, in a fixed
+    shape:</p>
+<p class="Pp"></p>
+<div class="Bd-indent">
+<pre><i>status</i>  <i>source</i> -&gt; <i>destination</i>  <i>W</i>x<i>H</i>  <i>size</i>
+</pre>
+</div>
+<p class="Pp"><i>status</i> is one of <b>ok</b>, <b>skip</b>, <b>plan</b> or
+    <b>fail</b>. It is left-padded to four characters, so the columns line up;
+    split on whitespace rather than on fixed offsets. <b>ok</b> lines end with
+    dimensions and a byte size; <b>skip</b> and <b>plan</b> lines do not.
+    <b>fail</b> lines go to standard error and carry the reason. The last line
+    is a summary such as &quot;3 converted, 1 skipped&quot;. With
+    <b>--dry-run</b> the summary instead reads &quot;N file(s) would be
+    written&quot;.</p>
+<p class="Pp">Runs are idempotent. An existing destination is skipped rather
+    than overwritten, so re-running a command after a partial failure only
+    redoes the work that did not finish. Use <b>--dry-run</b> to resolve inputs
+    and destinations without writing anything.</p>
+<p class="Pp">Because skip lines are not failures, an agent that wants a hard
+    assertion should check the exit status and the failure count in the summary
+    rather than assuming an empty output means nothing happened.</p>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="LIMITATIONS"><a class="permalink" href="#LIMITATIONS">LIMITATIONS</a></h1>
+<dl class="Bl-tag">
+  <dt id="No"><a class="permalink" href="#No"><b>No upscaling</b></a></dt>
+  <dd>Raster images are never enlarged by <b>--width</b>. Passing a width larger
+      than the source leaves the file unchanged, by design.</dd>
+  <dt id="Animation"><a class="permalink" href="#Animation"><b>Animation</b></a></dt>
+  <dd>Animated GIF and WebP use the first frame only.</dd>
+  <dt id="Colour"><a class="permalink" href="#Colour"><b>Colour
+    profiles</b></a></dt>
+  <dd>ICC profiles are not carried into the output. Pixels are not converted, so
+      an image tagged Display P3 or AdobeRGB is written with the same numbers
+      but without its tag, and viewers will read them as sRGB. Convert to sRGB
+      before using <b>imgx</b> if colour accuracy matters.</dd>
+  <dt id="EXIF"><a class="permalink" href="#EXIF"><b>EXIF
+    orientation</b></a></dt>
+  <dd>The rotation flag in EXIF is not applied. Photographs whose pixels are
+      stored sideways will be written sideways.</dd>
+  <dt id="Metadata"><a class="permalink" href="#Metadata"><b>Metadata</b></a></dt>
+  <dd>EXIF, XMP and GPS data are not preserved.</dd>
+  <dt id="Decoder"><a class="permalink" href="#Decoder"><b>Decoder
+    safety</b></a></dt>
+  <dd><b>imgx</b> has no sandbox. Malformed or hostile images are decoded by the
+      same native libraries a browser uses, running as your user, so treat an
+      image from an untrusted source with the caution you would apply to opening
+      it in a browser.</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="FILES"><a class="permalink" href="#FILES">FILES</a></h1>
+<dl class="Bl-tag">
+  <dt id="completions/_imgx"><a class="permalink" href="#completions/_imgx"><b>completions/_imgx</b></a></dt>
+  <dd>zsh completion function, shipped in the imgx source tree. Copy or symlink
+      it into any directory on <b>$fpath</b>. oh-my-zsh users can use
+      <b>~/.oh-my-zsh/custom/completions</b>, which is already on <b>$fpath</b>.
+      Then open a new shell, since completion functions are indexed at
+    startup.</dd>
+</dl>
+</section>
+<section class="Sh">
+<h1 class="Sh" id="SEE_ALSO"><a class="permalink" href="#SEE_ALSO">SEE
+  ALSO</a></h1>
+<p class="Pp"><b>sips</b>(1), <b>ffmpeg</b>(1), <b>exiftool</b>(1)</p>
+</section>
+    <div class="manual-foot">
+      <span>2026-11-02 imgx 1.0.0</span>
+      <span>rendered from <code>man/imgx.1</code></span>
+    </div>
+  </div>
+</section>
+
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>imgx 1.0.0 &middot; MIT</span>
+    <span>
+      <a href="https://github.com/chkrishnatej/imgx">github</a> &middot;
+      <a href="https://github.com/chkrishnatej/homebrew-imgx">homebrew tap</a> &middot;
+      <a href="help.html">cli reference</a>
+    </span>
+  </div>
+</footer>
+</body>
+</html>

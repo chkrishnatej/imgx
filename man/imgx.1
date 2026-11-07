@@ -1,0 +1,305 @@
+.TH IMGX 1 "2026-11-02" "imgx 1.0.0" "User Commands"
+.SH NAME
+imgx \- convert images between common formats from the command line
+.SH SYNOPSIS
+.SY imgx
+.I input ...
+.RI [ options ]
+.YS
+.SH DESCRIPTION
+.B imgx
+converts image files between formats.
+It reads SVG, PNG, JPEG, WebP, AVIF, TIFF, GIF, BMP, ICO and a few others,
+and writes PNG, JPEG, WebP, AVIF or TIFF.
+.PP
+Inputs may be files, directories, or glob patterns.
+A directory is walked recursively and every file with a recognised image
+extension is converted.
+.PP
+The output format comes from
+.BR \-f ,
+or is inferred from the extension of
+.BR \-o .
+It defaults to PNG.
+Without
+.BR \-o ,
+output is written next to each source file.
+.SH OPTIONS
+.TP
+.BR \-o ", " \-\-out " " \fIpath\fR
+Where to write.
+A path ending in an image extension names a single output file.
+Anything else is treated as a directory, created if it does not exist, and
+the input folder structure is mirrored inside it.
+.BR \-o " must be a directory when converting more than one file."
+If both
+.B \-f
+and an
+.B \-o
+file extension are given and they disagree, it is an error rather than a
+silently renamed file.
+.TP
+.BR \-f ", " \-\-format " " \fIfmt\fR
+One of
+.BR png ,
+.BR jpeg ,
+.BR webp ,
+.BR avif ,
+.BR tiff .
+Default
+.BR png .
+.TP
+.BR \-w ", " \-\-width " " \fIpx\fR
+Target width.
+SVGs are rasterized at exactly this width, so the result is crisp at any
+size.
+Raster images are only ever shrunk; a width at or above the source width is
+ignored.
+.TP
+.B \-\-height \fIpx\fR
+Target height, preserving aspect ratio.
+Ignored when
+.B \-\-width
+is also given.
+.TP
+.BR \-s ", " \-\-scale " " \fIn\fR
+SVG only.
+Render at
+.I n
+times the intrinsic size.
+.BR \-s " 2 gives a retina export."
+.TP
+.BR \-q ", " \-\-quality " " \fI1\-100\fR
+Encoder quality for
+.BR jpeg ,
+.B webp
+and
+.BR avif .
+Ignored for
+.B png
+and
+.BR tiff ,
+which are lossless.
+Default 85.
+Quality 100 is the best a lossy codec offers, not a lossless mode.
+.TP
+.B \-\-background \fIcss\fR
+The colour used to fill transparent pixels when writing JPEG, which has no
+alpha channel.
+Accepts
+.BR #rrggbb ,
+.BR #rgb ,
+.BR "rgb(r,g,b)"
+or one of
+.BR white ,
+.BR black ,
+.BR gray ,
+.BR grey ,
+.BR red ,
+.BR green ,
+.BR blue .
+Default
+.BR white .
+An unrecognised colour is an error rather than a silent fallback.
+.TP
+.B \-\-overwrite
+Replace destination files that already exist.
+Without this flag an existing file is skipped.
+.TP
+.B \-\-dry\-run
+Resolve inputs, outputs and formats, print what would be written, and exit
+without touching the filesystem.
+.TP
+.BR \-h ", " \-\-help
+Print usage to standard output and exit 0.
+.TP
+.B \-\-version
+Print the version and exit 0.
+.SH FORMATS
+One row per format.
+The
+.B Read
+column lists the formats that can be used as an input.
+The
+.B Write
+column lists the formats that can be used as an output.
+.TS
+allbox tab(:);
+lb lb lb lb.
+Format:Extension:Read:Write
+svg:.svg:yes:no
+png:.png:yes:yes
+jpeg:.jpg:yes:yes
+webp:.webp:yes:yes
+avif:.avif:yes:yes
+tiff:.tiff:yes:yes
+gif:.gif:yes:no
+bmp:.bmp:yes:no
+ico:.ico:yes:no
+tga:.tga:yes:no
+pnm:.pnm:yes:no
+heic:.heic:macOS:no
+heif:.heif:macOS:no
+psd:.psd:macOS:no
+pdf:.pdf:macOS:no
+camera raw:.dng ...:macOS:no
+.TE
+.PP
+.B svg
+is rasterized with resvg, so
+.B -w
+and
+.B -s
+produce genuinely sharp vectors at any size.
+.PP
+The
+.B heic ,
+.B heif ,
+.B psd ,
+.B pdf
+and camera raw formats are handled through
+.BR sips (1)
+on macOS and are unavailable elsewhere.
+.PP
+SVG is not an output format.
+Vectorising a photograph does not recover the curves it was drawn from.
+.SH EXIT STATUS
+.TP
+.B 0
+Every file converted, or was skipped because it already existed.
+.TP
+.B 1
+At least one file failed, or the arguments were invalid, or no input was
+given.
+.SH EXAMPLES
+Convert a diagram for a web page, at exactly 2400 pixels wide:
+.PP
+.RS
+.EX
+imgx diagram.svg \-w 2400
+.EE
+.RE
+.PP
+Produce a format macOS cannot write on its own:
+.PP
+.RS
+.EX
+imgx screenshot.png \-f webp \-q 90 \-o images/
+.EE
+.RE
+.PP
+Convert a folder tree into a build directory that does not exist yet:
+.PP
+.RS
+.EX
+imgx screenshots/ \-f webp \-q 90 \-o build/webp
+.EE
+.RE
+.PP
+Write one file to an exact name:
+.PP
+.RS
+.EX
+imgx logo.svg \-o static/logo\-2x.png
+.EE
+.RE
+.PP
+Check what a conversion would do before doing it:
+.PP
+.RS
+.EX
+imgx "static/**/*.png" \-f avif \-\-dry\-run
+.EE
+.RE
+.SH AUTOMATION
+.B imgx
+never prompts, never opens a pager, and never requires a terminal, so it can
+be driven from a script or an agent without a pseudo-terminal.
+.PP
+Progress goes to standard output, one line per file, in a fixed shape:
+.PP
+.RS
+.EX
+\fIstatus\fP  \fIsource\fP \-> \fIdestination\fP  \fIW\fPx\fIH\fP  \fIsize\fP
+.EE
+.RE
+.PP
+.I status
+is one of
+.BR ok ,
+.BR skip ,
+.B plan
+or
+.BR fail .
+It is left-padded to four characters, so the columns line up; split on
+whitespace rather than on fixed offsets.
+.B ok
+lines end with dimensions and a byte size;
+.B skip
+and
+.B plan
+lines do not.
+.B fail
+lines go to standard error and carry the reason.
+The last line is a summary such as "3 converted, 1 skipped".
+With
+.BR \-\-dry\-run
+the summary instead reads "N file(s) would be written".
+.PP
+Runs are idempotent.
+An existing destination is skipped rather than overwritten, so re-running a
+command after a partial failure only redoes the work that did not finish.
+Use
+.B \-\-dry\-run
+to resolve inputs and destinations without writing anything.
+.PP
+Because skip lines are not failures, an agent that wants a hard assertion
+should check the exit status and the failure count in the summary rather than
+assuming an empty output means nothing happened.
+.SH LIMITATIONS
+.TP
+.B No upscaling
+Raster images are never enlarged by
+.BR \-\-width .
+Passing a width larger than the source leaves the file unchanged, by design.
+.TP
+.B Animation
+Animated GIF and WebP use the first frame only.
+.TP
+.B Colour profiles
+ICC profiles are not carried into the output.
+Pixels are not converted, so an image tagged Display P3 or AdobeRGB is
+written with the same numbers but without its tag, and viewers will read
+them as sRGB.
+Convert to sRGB before using
+.B imgx
+if colour accuracy matters.
+.TP
+.B EXIF orientation
+The rotation flag in EXIF is not applied.
+Photographs whose pixels are stored sideways will be written sideways.
+.TP
+.B Metadata
+EXIF, XMP and GPS data are not preserved.
+.TP
+.B Decoder safety
+.B imgx
+has no sandbox.
+Malformed or hostile images are decoded by the same native libraries a
+browser uses, running as your user, so treat an image from an untrusted
+source with the caution you would apply to opening it in a browser.
+.SH FILES
+.TP
+.B completions/_imgx
+zsh completion function, shipped in the imgx source tree.
+Copy or symlink it into any directory on
+.BR $fpath .
+oh-my-zsh users can use
+.BR ~/.oh-my-zsh/custom/completions ,
+which is already on
+.BR $fpath .
+Then open a new shell, since completion functions are indexed at startup.
+.SH SEE ALSO
+.BR sips (1),
+.BR ffmpeg (1),
+.BR exiftool (1)

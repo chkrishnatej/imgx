@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLI reference — imgx</title>
+<meta name="description" content="Every imgx flag, the stdout contract for scripts and agents, exit codes, format support and zsh completion.">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230b0e14'/><text x='16' y='23' font-family='monospace' font-size='19' font-weight='bold' text-anchor='middle' fill='%234ade80'>ix</text></svg>">
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="index.html"><span class="dot"></span>imgx</a>
+    <nav class="site">
+      <a href="index.html">Home</a>
+      <a href="help.html" aria-current="page">CLI reference</a>
+      <a href="manual.html">Manual</a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<div class="wrap manual-head">
+  <h1>CLI reference</h1>
+  <span class="meta">imgx 1.0.0</span>
+</div>
+
+<section>
+  <div class="wrap">
+    <h2>Help output</h2>
+    <p>This is exactly what <code>imgx --help</code> prints.</p>
+    <div class="help-output">
+      <span class="badge">imgx --help</span>
+<pre><code>imgx - convert images from the terminal
+
+Usage
+  imgx &lt;input...&gt; [options]
+
+  Inputs are files, directories (walked recursively) or globs.
+  Without --out, files are written next to their source as png.
+
+Options
+  -o, --out &lt;path&gt;       Output file, or directory (created if missing,
+                         with the input folder structure mirrored inside)
+  -f, --format &lt;fmt&gt;     png | jpeg | webp | avif | tiff      [default: png]
+  -w, --width &lt;px&gt;       Target width. SVGs render at exactly this size,
+                         raster images are only ever shrunk
+      --height &lt;px&gt;      Target height, ignored when --width is set
+  -s, --scale &lt;n&gt;        SVG only: render at n times its intrinsic size
+  -q, --quality &lt;1-100&gt;  Quality for jpeg, webp and avif       [default: 85]
+      --background &lt;css&gt; Color behind JPEG transparency      [default: white]
+                         #rrggbb, #rgb, rgb(r,g,b), or a name:
+                         white black grey gray red green blue
+      --overwrite        Replace existing files instead of skipping them
+      --dry-run          Print what would be written, change nothing
+  -h, --help             Show this help
+      --version          Show the version
+
+Formats
+  reads   svg png jpg jpeg webp avif tif tiff gif bmp ico tga pnm,
+          plus heic heif psd pdf and camera raw through macOS sips
+  writes  png jpeg webp avif tiff
+
+  Rasters are never enlarged. Animated gif and webp use their first
+  frame. There is no svg output: rasterizing a photo to vectors never
+  returns the original curves.
+
+Behavior
+  A --out path ending in an image extension names the output file;
+  anything else is a directory and gets created. Existing files are
+  skipped, never replaced, unless --overwrite is given. The exit status
+  is 1 if any file fails.
+
+Examples
+  imgx diagram.svg -w 2400
+  imgx hero.webp -f png -o images/
+  imgx screenshots/ -f webp -q 90 -o build/webp
+  imgx "shots/*.png" -w 1280 -o resized
+  imgx photo.heic -f jpeg -q 95 -o print/
+
+Full manual: man imgx</code></pre>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Options</h2>
+    <table>
+      <thead>
+        <tr><th>Flag</th><th>Default</th><th>What it does</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>-o</code> <code>--out</code> <code>&lt;path&gt;</code></td>
+          <td>next to the source</td>
+          <td>A path ending in an image extension names a single output file. Anything else is a directory, created if missing, with the input folder structure mirrored inside it. Must be a directory when converting more than one file.</td>
+        </tr>
+        <tr>
+          <td><code>-f</code> <code>--format</code> <code>&lt;fmt&gt;</code></td>
+          <td><code>png</code></td>
+          <td>One of <code>png</code>, <code>jpeg</code>, <code>webp</code>, <code>avif</code>, <code>tiff</code>. Inferred from the extension of <code>--out</code> when that is given.</td>
+        </tr>
+        <tr>
+          <td><code>-w</code> <code>--width</code> <code>&lt;px&gt;</code></td>
+          <td>source width</td>
+          <td>Target width. SVGs are rasterized at exactly this width. Rasters are only ever shrunk; a width at or above the source width is ignored.</td>
+        </tr>
+        <tr>
+          <td><code>--height</code> <code>&lt;px&gt;</code></td>
+          <td>source height</td>
+          <td>Target height, preserving aspect ratio. Ignored when <code>--width</code> is also given.</td>
+        </tr>
+        <tr>
+          <td><code>-s</code> <code>--scale</code> <code>&lt;n&gt;</code></td>
+          <td>1</td>
+          <td>SVG only. Render at <code>n</code> times the intrinsic size. <code>-s 2</code> gives a retina export.</td>
+        </tr>
+        <tr>
+          <td><code>-q</code> <code>--quality</code> <code>&lt;1-100&gt;</code></td>
+          <td><code>85</code></td>
+          <td>Encoder quality for <code>jpeg</code>, <code>webp</code> and <code>avif</code>. Ignored for the lossless formats. 100 is the best a lossy codec offers, not a lossless mode.</td>
+        </tr>
+        <tr>
+          <td><code>--background</code> <code>&lt;css&gt;</code></td>
+          <td><code>#ffffff</code></td>
+          <td>The colour used to fill transparent pixels when writing JPEG, which has no alpha channel. Accepts <code>#rrggbb</code>, <code>#rgb</code>, <code>rgb(r,g,b)</code> or a name. An unrecognised colour is an error, not a silent fallback.</td>
+        </tr>
+        <tr>
+          <td><code>--overwrite</code></td>
+          <td>off</td>
+          <td>Replace destination files that already exist. Without it an existing file is skipped.</td>
+        </tr>
+        <tr>
+          <td><code>--dry-run</code></td>
+          <td>off</td>
+          <td>Resolve inputs, outputs and formats, print what would be written, and exit without touching the filesystem.</td>
+        </tr>
+        <tr>
+          <td><code>-h</code> <code>--help</code></td>
+          <td>&mdash;</td>
+          <td>Print usage to standard output and exit 0.</td>
+        </tr>
+        <tr>
+          <td><code>--version</code></td>
+          <td>&mdash;</td>
+          <td>Print the version and exit 0.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Where files land</h2>
+    <p>
+      <code>--out</code> is a directory unless it ends in an image extension.
+      <code>-o build/</code>, <code>-o build</code> and <code>-o logo.png</code>
+      all do the obvious thing. Directories are created, including missing
+      parents. When the input is a directory, the folder structure inside it is
+      mirrored under <code>--out</code>:
+    </p>
+<pre><code>imgx shots/ -o build
+# shots/a.png   -&gt; build/a.png
+# shots/v2/b.svg -&gt; build/v2/b.png</code></pre>
+    <p>
+      If both <code>-f</code> and an <code>-o</code> file extension are given
+      and they disagree, that is an error rather than a silently renamed file.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Formats</h2>
+    <p>
+      One row per format. Everything in the <strong>Read</strong> column is a
+      valid input; only the formats marked in <strong>Write</strong> can be an
+      output.
+    </p>
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th>Format</th>
+          <th>Extension</th>
+          <th>Read</th>
+          <th>Write</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>svg</code></td>
+          <td><code>.svg</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Rasterized with resvg, so <code>-w</code> and <code>-s</code> produce genuinely sharp vectors at any size.</td>
+        </tr>
+        <tr>
+          <td><code>png</code></td>
+          <td><code>.png</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossless, keeps transparency. The default output.</td>
+        </tr>
+        <tr>
+          <td><code>jpeg</code></td>
+          <td><code>.jpg</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossy. Transparency is flattened onto <code>--background</code>.</td>
+        </tr>
+        <tr>
+          <td><code>webp</code></td>
+          <td><code>.webp</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossy, keeps transparency, much smaller than PNG.</td>
+        </tr>
+        <tr>
+          <td><code>avif</code></td>
+          <td><code>.avif</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossy, keeps transparency, smallest of the lot, slowest to encode.</td>
+        </tr>
+        <tr>
+          <td><code>tiff</code></td>
+          <td><code>.tiff</code></td>
+          <td class="yes">yes</td>
+          <td class="yes">yes</td>
+          <td>Lossless, uncompressed-ish, for print and archival.</td>
+        </tr>
+        <tr>
+          <td><code>gif</code></td>
+          <td><code>.gif</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>First frame only.</td>
+        </tr>
+        <tr>
+          <td><code>bmp</code></td>
+          <td><code>.bmp</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Decoded natively.</td>
+        </tr>
+        <tr>
+          <td><code>ico</code></td>
+          <td><code>.ico</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Decoded natively.</td>
+        </tr>
+        <tr>
+          <td><code>tga</code></td>
+          <td><code>.tga</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Decoded natively.</td>
+        </tr>
+        <tr>
+          <td><code>pnm</code></td>
+          <td><code>.pnm</code></td>
+          <td class="yes">yes</td>
+          <td class="no">no</td>
+          <td>Decoded natively.</td>
+        </tr>
+        <tr>
+          <td><code>heic</code></td>
+          <td><code>.heic</code></td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+        <tr>
+          <td><code>heif</code></td>
+          <td><code>.heif</code></td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+        <tr>
+          <td><code>psd</code></td>
+          <td><code>.psd</code></td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+        <tr>
+          <td><code>pdf</code></td>
+          <td><code>.pdf</code></td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+        <tr>
+          <td>camera raw</td>
+          <td><code>.dng</code> <code>.cr2</code> <code>.nef</code> &hellip;</td>
+          <td class="macos">macOS</td>
+          <td class="no">no</td>
+          <td>Decoded through <code>sips</code>, then converted as usual.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      There is no SVG output. Vectorizing a raster image is a different
+      problem, and the result is never the original vector.
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Automation</h2>
+    <p>
+      <code>imgx</code> is safe to call from a script or an agent: it never
+      prompts, never opens a pager, and never needs a TTY.
+    </p>
+    <ul>
+      <li>One line per file on stdout: <code>status  source -&gt; destination  WxH  size</code>, where status is <code>ok</code>, <code>skip</code>, <code>plan</code> or <code>fail</code>.</li>
+      <li>Failures go to stderr with the reason, so stdout stays parseable.</li>
+      <li>Exit <code>0</code> when every file converted or was skipped, <code>1</code> when anything failed or the arguments were rejected.</li>
+      <li>Re-running is idempotent: existing outputs are skipped, so a retry after a partial failure only redoes the unfinished work.</li>
+    </ul>
+    <p>The status is left-padded to four characters, so split on whitespace rather than on fixed offsets.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Shell completion</h2>
+    <p>
+      zsh only, for now. The completion knows the five formats, every flag, and
+      only offers files <code>imgx</code> can actually read. Homebrew installs
+      it into <code>share/zsh/site-functions</code>, which is already on
+      <code>$fpath</code>.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Typed</th><th>Suggests</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>imgx &lt;TAB&gt;</code></td><td>only <code>svg png jpg jpeg webp avif tif tiff gif bmp ico tga heic heif psd pdf</code>, not every file in the directory</td></tr>
+        <tr><td><code>imgx a.svg -f &lt;TAB&gt;</code></td><td><code>png jpeg webp avif tiff</code></td></tr>
+        <tr><td><code>imgx a.svg --&lt;TAB&gt;</code></td><td>every flag with its one-line description</td></tr>
+        <tr><td><code>imgx a.svg --background &lt;TAB&gt;</code></td><td><code>white black grey gray red green blue</code></td></tr>
+        <tr><td><code>imgx a.svg -o &lt;TAB&gt;</code></td><td>files and directories, since <code>-o</code> accepts either</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Numeric flags (<code>-w</code>, <code>--height</code>, <code>-q</code>,
+      <code>-s</code>) deliberately complete nothing. There is no useful set of
+      widths to guess at.
+    </p>
+  </div>
+</section>
+
+</main>
+<footer class="site">
+  <div class="wrap">
+    <span>imgx 1.0.0 &middot; MIT</span>
+    <span>
+      <a href="https://github.com/chkrishnatej/imgx">github</a> &middot;
+      <a href="https://github.com/chkrishnatej/homebrew-imgx">homebrew tap</a> &middot;
+      <a href="manual.html">man page</a>
+    </span>
+  </div>
+</footer>
+</body>
+</html>

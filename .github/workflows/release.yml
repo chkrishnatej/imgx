@@ -1,0 +1,130 @@
+name: release
+
+# Publishes a GitHub release with one archive per platform. The Homebrew tap
+# downloads these archives directly, so `brew install imgx` needs no toolchain
+# and no network access during the install step.
+#
+# Release assets are immutable, which is what makes the tap formula's sha256
+# checksums valid forever.
+#
+# The version comes from package.json, not from the tag, so a release can also
+# be cut by hand from the Actions tab. The tag trigger only decides *when* it
+# runs, and a mismatch between the tag and package.json is an error.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    name: version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      tag: v${{ steps.read.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: read
+        run: |
+          set -euo pipefail
+          version="$(jq -r .version package.json)"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${version}" >> "$GITHUB_OUTPUT"
+
+          if [[ "${GITHUB_REF_TYPE}" == "tag" && "${GITHUB_REF_NAME}" != "v${version}" ]]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package.json version ${version}." >&2
+            exit 1
+          fi
+
+  build:
+    name: ${{ matrix.target }}
+    needs: version
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: darwin-arm64
+            os: macos-14
+          - target: darwin-x64
+            os: macos-13
+          - target: linux-arm64
+            os: ubuntu-24.04-arm
+          - target: linux-x64
+            os: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.4"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --production
+
+      - name: Build the binary
+        run: bun build --compile --outfile dist/imgx src/cli.ts
+
+      - name: Package
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          staging="imgx-${VERSION}"
+          mkdir -p "${staging}/bin" "${staging}/share/man/man1" "${staging}/share/zsh/site-functions"
+          cp dist/imgx "${staging}/bin/imgx"
+          cp man/imgx.1 "${staging}/share/man/man1/imgx.1"
+          cp completions/_imgx "${staging}/share/zsh/site-functions/_imgx"
+          tar -czf "${staging}-${{ matrix.target }}.tar.gz" "${staging}"
+          echo "ARCHIVE=${staging}-${{ matrix.target }}.tar.gz" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: imgx-${{ matrix.target }}
+          path: ${{ env.ARCHIVE }}
+          if-no-files-found: error
+
+  release:
+    name: publish
+    needs: [version, build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: archives
+
+      - name: Checksum every archive
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          for target in darwin-arm64 darwin-x64 linux-arm64 linux-x64; do
+            archive="imgx-${VERSION}-${target}.tar.gz"
+            path="$(find archives -mindepth 2 -maxdepth 2 -name "${archive}" -print -quit)"
+            if [[ -z "${path}" ]]; then
+              echo "Archive ${archive} was not built." >&2
+              exit 1
+            fi
+            sha256sum "${path}" | sed -E "s|  .*|  ${archive}|" >> checksums.txt
+          done
+          sort -k2 checksums.txt -o checksums.txt
+          cat checksums.txt
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          files: |
+            checksums.txt
+            archives/*/*.tar.gz
+          fail_on_unmatched_files: true
