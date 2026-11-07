@@ -65,11 +65,12 @@ The release workflow builds the archives and publishes `checksums.txt`
 alongside them. The publish-tap workflow then reads those checksums, updates
 the formula and pushes it here. Nothing else is needed.
 
-Publishing the tap needs a token:
+Publishing the tap needs a deploy key:
 
-1. Create a fine-grained token with write access to
-   `chkrishnatej/homebrew-imgx`, scoped to that repository only.
-2. Add it to the source repository as a secret named `HOMEBREW_TAP_TOKEN`.
+1. Generate a key pair and add the public key to `chkrishnatej/homebrew-imgx`
+   as a read-write deploy key.
+2. Store the private key in the source repository as the secret
+   `HOMEBREW_TAP_KEY`.
 
 To update the formula by hand instead:
 

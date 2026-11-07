@@ -57,14 +57,16 @@ jobs:
 
       - name: Push the tap
         env:
-          TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          TAP_KEY: ${{ secrets.HOMEBREW_TAP_KEY }}
         run: |
           set -euo pipefail
-          if [[ -z "${TAP_TOKEN}" ]]; then
-            echo "HOMEBREW_TAP_TOKEN is not set; the tap was not pushed." >&2
-            echo "Create a fine-grained token with write access to" >&2
-            echo "chkrishnatej/homebrew-imgx and add it as a repository secret." >&2
+          if [[ -z "${TAP_KEY}" ]]; then
+            echo "HOMEBREW_TAP_KEY is not set; the tap was not pushed." >&2
             exit 1
           fi
-          git remote add tap "https://x-access-token:${TAP_TOKEN}@github.com/chkrishnatej/homebrew-imgx.git"
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${TAP_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts 2>/dev/null
+          git remote add tap "git@github.com:chkrishnatej/homebrew-imgx.git"
           git push --force tap tap-split:main

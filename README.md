@@ -192,7 +192,7 @@ The release workflow builds one archive per platform and publishes them with a `
 
 Two repositories are involved, because Homebrew requires a tap to live in a repository named `homebrew-<tap>` — `brew tap chkrishnatej/imgx` clones `chkrishnatej/homebrew-imgx`. Only this repository is edited by hand: the tap's contents live in `homebrew-imgx/` here and are published as a subtree, so the formula and the code it installs are always in the same commit.
 
-The publish-tap workflow pushes to the tap with a fine-grained token stored as the `HOMEBREW_TAP_TOKEN` secret on this repository.
+The publish-tap workflow pushes to the tap with an SSH deploy key, stored as the `HOMEBREW_TAP_KEY` secret on this repository and registered on the tap repository.
 
 ## Website
 
