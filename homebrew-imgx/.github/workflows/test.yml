@@ -12,14 +12,15 @@ on:
 
 jobs:
   test:
-    name: test on macOS ${{ matrix.os }}
+    name: test on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
         os:
-          - macos-14
-          - macos-13
+          - macos-15
+          - macos-15-intel
           - ubuntu-latest
 
     steps:
@@ -39,7 +40,8 @@ jobs:
 
   head:
     name: test --HEAD on macOS
-    runs-on: macos-14
+    runs-on: macos-15
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
