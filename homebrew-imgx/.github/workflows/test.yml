@@ -30,13 +30,13 @@ jobs:
 
       - name: Install the formula
         run: |
-          brew install --build-from-source .
+          brew install --build-from-source chkrishnatej/imgx/imgx
 
       - name: Run the formula test
-        run: brew test --verbose .
+        run: brew test --verbose chkrishnatej/imgx/imgx
 
       - name: Audit the formula
-        run: brew audit --strict --online .
+        run: brew audit --strict --online chkrishnatej/imgx/imgx
 
   head:
     name: test --HEAD on macOS
@@ -49,7 +49,8 @@ jobs:
       - uses: Homebrew/actions/setup-homebrew@main
 
       - name: Install HEAD
-        run: brew install --HEAD --build-from-source .
+        run: |
+          brew install --HEAD --build-from-source chkrishnatej/imgx/imgx
 
       - name: Run the formula test
-        run: brew test --verbose .
+        run: brew test --verbose chkrishnatej/imgx/imgx
